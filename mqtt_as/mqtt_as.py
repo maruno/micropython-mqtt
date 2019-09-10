@@ -24,6 +24,11 @@ import network
 
 gc.collect()
 from sys import platform
+try:
+    import logging
+    log_mqtt = logging.getLogger("MQTT")
+except ImportError:
+    log_mqtt = None
 
 VERSION = (0, 7, 0)
 
@@ -123,6 +128,7 @@ def qos_check(qos):
 # Exceptions from connectivity failures are handled by MQTTClient subclass.
 class MQTT_base:
     REPUB_COUNT = 0  # TEST
+    LOGGING = False
     DEBUG = False
 
     def __init__(self, config):
@@ -182,9 +188,12 @@ class MQTT_base:
         self._lw_qos = qos
         self._lw_retain = retain
 
-    def dprint(self, msg, *args):
-        if self.DEBUG:
-            print(msg % args)
+    def dprint(self, *args):
+        if self.DEBUG or self.LOGGING:
+            if self.LOGGING:
+                log_mqtt.info(*args)
+            else:
+                print(*args)
 
     def _timeout(self, t):
         return ticks_diff(ticks_ms(), t) > self._response_time
@@ -652,7 +661,7 @@ class MQTTClient(MQTT_base):
 
         asyncio.create_task(self._handle_msg())  # Task quits on connection fail.
         self._tasks.append(asyncio.create_task(self._keep_alive()))
-        if self.DEBUG:
+        if self.DEBUG or self.LOGGING:
             self._tasks.append(asyncio.create_task(self._memory()))
         if self._events:
             self.up.set()  # Connectivity is up
