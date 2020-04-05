@@ -543,7 +543,7 @@ class MQTTClient(MQTT_base):
 
         loop.create_task(self._handle_msg())  # Tasks quit on connection fail.
         loop.create_task(self._keep_alive())
-        if self.DEBUG or self.LOGGING:
+        if self.DEBUG:
             loop.create_task(self._memory())
         loop.create_task(self._connect_handler(self))  # User handler.
 
