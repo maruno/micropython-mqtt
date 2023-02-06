@@ -555,6 +555,7 @@ class MQTTClient(MQTT_base):
             self._tasks.append(asyncio.create_task(self._memory()))
         if self._events:
             self.up.set()  # Connectivity is up
+            self.down.clear()
         else:
             asyncio.create_task(self._connect_handler(self))  # User handler.
 
@@ -612,6 +613,7 @@ class MQTTClient(MQTT_base):
             asyncio.create_task(self._kill_tasks(True))  # Shut down tasks and socket
             if self._events:  # Signal an outage
                 self.down.set()
+                self.up.clear()
             asyncio.create_task(self.connect())
 
     # Await broker connection.
