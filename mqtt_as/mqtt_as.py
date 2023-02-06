@@ -661,7 +661,7 @@ class MQTTClient(MQTT_base):
 
         asyncio.create_task(self._handle_msg())  # Task quits on connection fail.
         self._tasks.append(asyncio.create_task(self._keep_alive()))
-        if self.DEBUG or self.LOGGING:
+        if self.DEBUG:
             self._tasks.append(asyncio.create_task(self._memory()))
         if self._events:
             self.up.set()  # Connectivity is up
